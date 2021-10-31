@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import pyodbc,time
 
 try: 
@@ -43,4 +44,17 @@ except Exception as ex:
     print(ex)
 finally:
     conexion.close()
+=======
+import pyodbc
+
+try: 
+    conexion = pyodbc.connect('DRIVER={Devart ODBC Driver for Oracle};Direct=True;Host=oracle0.ugr.es;Service Name=practbd.oracle0.ugr.es;User ID=x4276227;Password=x4276227')
+    print("Conectado a la base de datos")
+    # Aquí continuais vuestro codigo
+
+except Exception as ex:
+    print(ex)
+finally:
+    conexion.close()
+>>>>>>> 05bfb7b95fa3b247c76823f26db6300c848d0fcf
     print("Desconectado de la base de datos")
