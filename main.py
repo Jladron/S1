@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 import pyodbc,time
 
+
 try: 
     conexion = pyodbc.connect('DRIVER={Devart ODBC Driver for Oracle};Host=oracle0.ugr.es;Direct=TRUE;Service Name=practbd.oracle0.ugr.es;User ID=x5569257;Password=x5569257')
     print("Conectado a la base de datos")
