@@ -23,10 +23,33 @@ def reiniciar(conexion):
     try:
         cursor = conexion.cursor()
         # print("1")
-        # #Eliminamos las tablas, el orden de eliminacion es crucial debido a que la tabla detalle-pedido contiene referencias a las otras 2 tablas
-        cursor.execute('DROP TABLE IF EXISTS Detallepedido') #ESTO NO VALE EN ORACLE HAY QUE HACERLO TRATANDO LAS EXCEPCIONES
-        cursor.execute('DROP TABLE IF EXISTS Pedido')
-        cursor.execute('DROP TABLE IF EXISTS Stock')
+        # Eliminamos las tablas, el orden de eliminacion es crucial debido a que la tabla detalle-pedido contiene referencias a las otras 2 tablas
+        cursor.execute('''
+        DECLARE cnt NUMBER;
+        BEGIN
+            SELECT COUNT(*) INTO cnt FROM user_tables WHERE table_name = 'SALES';
+                IF cnt <> 0 THEN
+                    EXECUTE IMMEDIATE 'DROP TABLE Detallepedido';
+                END IF;
+        END;''')
+
+        cursor.execute('''
+        DECLARE cnt NUMBER;
+        BEGIN
+            SELECT COUNT(*) INTO cnt FROM user_tables WHERE table_name = 'SALES';
+                IF cnt <> 0 THEN
+                    EXECUTE IMMEDIATE 'DROP TABLE Pedido';
+                END IF;
+        END;''')
+
+        cursor.execute('''
+        DECLARE cnt NUMBER;
+        BEGIN
+            SELECT COUNT(*) INTO cnt FROM user_tables WHERE table_name = 'SALES';
+                IF cnt <> 0 THEN
+                    EXECUTE IMMEDIATE 'DROP TABLE Stock';
+                END IF;
+        END;''')
         print("2")
         #Creamos las 3 tablas
         cursor.execute("CREATE TABLE Stock(Cproducto INT PRIMARY KEY NOT NULL,Cantidad INT)")
