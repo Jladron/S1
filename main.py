@@ -85,7 +85,7 @@ def nuevo_pedido(conexion):
 
         Añadir commit en la 4ª opción: FINALIZAR PEDIDO.
         """
-        
+        # return Cpedido ??
         
 def mostrar_tablas(conexion):
     csr = conexion.cursor()
