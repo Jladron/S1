@@ -160,6 +160,38 @@ def mostrar_tablas(conexion):
         print ("{:<10} {:<10} {:<10}".format( codprod, codped,cantidad))
     csr.close()
 
+#Menu para dar de alta un pedido (opcion 2 del menu inicial)
+def menu_dar_de_alta_pedido():
+    cursor = conexion.cursor
+
+    cursor.execution('SAVEPOINT detalles')
+
+    while not salir_m2:
+        print("1.-Añadir detalle de producto")
+        print("2.-Eliminar todos los detalles de producto")
+        print("3.-Cancelar pedido")
+        print("4.-Finalizar pedido")
+
+        opcion_m2 = int(input("INTRODUCE EL NUMERO DE LA OPCION: "))
+
+        
+        if opcion_m2 == 1:
+            print("opcion 1")
+        elif opcion_m2 == 2:
+            print("opcion 2")
+            cursor.execute('ROLLBACK TO detalles')
+        elif opcion_m2 == 3:
+            print("opcion 3")
+            cursor.execute('ROLLBACK')
+            salir_m2 = True
+        elif opcion_m2 == 4:
+            print("opion 4")
+            cursor.execute('COMMIT')
+            opcion_m2 = True
+        else:
+            print("Escribe una opcion correcta")
+
+
 #MENU
 
 salir = False
@@ -184,12 +216,17 @@ while not salir:
 
     if opcion == 1:
         reiniciar(cxn)
+
     elif opcion == 2:
-        print("opcion 2")
+        salir_m2 = False
+        menu_dar_de_alta_pedido()
+
     elif opcion == 3:
         mostrar_tablas(cxn)
+
     elif opcion==4:
         desconexion(cxn)
         salir = True
+        
     else:
         print("Escribe una opcion correcta")
