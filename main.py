@@ -53,6 +53,40 @@ def reiniciar(conexion):
     finally:
         cursor.close()
 
+# OPCIÓN 2 (MENÚ PRINCIPAL): Dar de alta nuevo pedido
+
+def nuevo_pedido(conexion):
+    try:
+        cursor = conexion.cursor()
+
+        conexion.autocommit = False
+
+        print("Se va a dar de alta un nuevo pedido.")
+
+        conexion.set_savepoint("antes_pedido")
+ 
+    # Variables correspondientes a las claves primarias
+        Cpedido = int(input("Introduzca el código de pedido: "))
+        Ccliente = int(input("Introduzca el código de cliente: "))
+
+        cursor.execute("INSERT INTO Pedido VALUES (" + Cpedido + ", " + Ccliente + ", SYSDATE)")
+
+        print("Pedido creador correctamente.")
+
+    except Exception as ex:
+        print("Ha fallado el alta del pedido.")
+        conexion.rollback_to("antes_pedido")
+    finally:
+        conexion.set_savepoint("pedido_creado")
+        cursor.close()
+
+        """
+        Aquí falta el menú de opciones dentro de DAR DE ALTA UN PEDIDO.
+
+        Añadir commit en la 4ª opción: FINALIZAR PEDIDO.
+        """
+        
+        
 def mostrar_tablas(conexion):
     csr = conexion.cursor()
 
