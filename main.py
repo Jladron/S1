@@ -128,8 +128,6 @@ def add_detalle(conexion, Cpedido):
         print("ERROR: Stock insuficiente. Stock actual: " + stock)
 
         conexion.rollback_to("pedido_creado")
-
-    conexion.commit()
                    
 def mostrar_tablas(conexion):
     csr = conexion.cursor()
@@ -161,10 +159,11 @@ def mostrar_tablas(conexion):
     csr.close()
 
 #Menu para dar de alta un pedido (opcion 2 del menu inicial)
-def menu_dar_de_alta_pedido():
+def menu_dar_de_alta_pedido(conexion):
     cursor = conexion.cursor
-
     cursor.execution('SAVEPOINT detalles')
+                   
+    salir_m2 = False
 
     while not salir_m2:
         print("1.-Añadir detalle de producto")
@@ -177,6 +176,7 @@ def menu_dar_de_alta_pedido():
         
         if opcion_m2 == 1:
             print("opcion 1")
+            nuevo_pedido(conexion)
         elif opcion_m2 == 2:
             print("opcion 2")
             cursor.execute('ROLLBACK TO detalles')
@@ -218,8 +218,7 @@ while not salir:
         reiniciar(cxn)
 
     elif opcion == 2:
-        salir_m2 = False
-        menu_dar_de_alta_pedido()
+        menu_dar_de_alta_pedido(cxn)
 
     elif opcion == 3:
         mostrar_tablas(cxn)
