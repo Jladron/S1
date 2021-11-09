@@ -86,7 +86,31 @@ def nuevo_pedido(conexion):
         Añadir commit en la 4ª opción: FINALIZAR PEDIDO.
         """
         # return Cpedido ??
+def add_detalle(conexion, Cpedido):
+
+        cursor = conexion.cursor()
+
+        conexion.autocommit = False
         
+        Cproducto = int(input("Introduzca el código del producto: "))
+
+        stock = 0
+        stock = int(cursor.execute("SELECT Cantidad FROM STOCK where STOCK.Cproducto = " + Cproducto))
+        print("Stock disponible actualmente: " + str(stock))
+
+        cantidad = int(input("Introduzca la cantidad del producto: "))
+
+        if (stock >= cantidad):
+        
+                cursor.execute("UPDATE STOCK SET Cantidad = " + (stock - cantidad) + "WHERE STOCK.Cproducto = " + Cproducto)
+                
+
+                conexion.set_savepoint("detalles_insertados")
+
+               
+
+            cursor.execute("INSERT INTO Detallepedido VALUES ("+ Cproducto +", " +Cpedido +", "+ cantidad +")") 
+
 def mostrar_tablas(conexion):
     csr = conexion.cursor()
 
