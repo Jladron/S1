@@ -79,61 +79,58 @@ def reiniciar(conexion):
 # OPCIÓN 2 (MENÚ PRINCIPAL): Dar de alta nuevo pedido
 
 def nuevo_pedido(conexion):
-    try:
-        cursor = conexion.cursor()
 
-        conexion.autocommit = False
+    cursor = conexion.cursor()
 
-        print("Se va a dar de alta un nuevo pedido.")
+    conexion.autocommit = False
 
-        conexion.set_savepoint("antes_pedido")
- 
+    print("Se va a dar de alta un nuevo pedido.")
+
+    conexion.set_savepoint("antes_pedido")
+
     # Variables correspondientes a las claves primarias
-        Cpedido = int(input("Introduzca el código de pedido: "))
-        Ccliente = int(input("Introduzca el código de cliente: "))
+    Cpedido = int(input("Introduzca el código de pedido: "))
+    Ccliente = int(input("Introduzca el código de cliente: "))
 
+    try:
         cursor.execute("INSERT INTO Pedido VALUES (" + Cpedido + ", " + Ccliente + ", SYSDATE)")
 
-        print("Pedido creador correctamente.")
+        print("Pedido creado correctamente.")
 
     except Exception as ex:
-        print("Ha fallado el alta del pedido.")
+        print("Ha fallado el proceso alta del pedido.")
         conexion.rollback_to("antes_pedido")
     finally:
         conexion.set_savepoint("pedido_creado")
         cursor.close()
 
-        """
-        Aquí falta el menú de opciones dentro de DAR DE ALTA UN PEDIDO.
-
-        Añadir commit en la 4ª opción: FINALIZAR PEDIDO.
-        """
-        # return Cpedido ??
 def add_detalle(conexion, Cpedido):
 
-        cursor = conexion.cursor()
+    cursor = conexion.cursor()
 
-        conexion.autocommit = False
-        
-        Cproducto = int(input("Introduzca el código del producto: "))
+    conexion.autocommit = False
+    
+    Cproducto = int(input("Introduzca el código del producto: "))
 
-        stock = 0
-        stock = int(cursor.execute("SELECT Cantidad FROM STOCK where STOCK.Cproducto = " + Cproducto))
-        print("Stock disponible actualmente: " + str(stock))
+    stock = 0
+    stock = int(cursor.execute("SELECT Cantidad FROM STOCK where STOCK.Cproducto = " + Cproducto))
+    print("Stock disponible actualmente: " + str(stock))
 
-        cantidad = int(input("Introduzca la cantidad del producto: "))
+    cantidad = int(input("Introduzca la cantidad del producto: ")
 
-        if (stock >= cantidad):
-        
-                cursor.execute("UPDATE STOCK SET Cantidad = " + (stock - cantidad) + "WHERE STOCK.Cproducto = " + Cproducto)
-                
+    if (stock >= cantidad):
+        restante = int(stock - cantidad)
+        cursor.execute("UPDATE STOCK SET Cantidad = " + restante + "WHERE STOCK.Cproducto = " + Cproducto)
+        cursor.execute("INSERT INTO Detallepedido VALUES ("+Cproducto+", " +Cpedido+", "+cantidad+")")
+    
+        conexion.set_savepoint("detalles_insertados")
+    else:
+        print("ERROR: Stock insuficiente. Stock actual: " + stock)
 
-                conexion.set_savepoint("detalles_insertados")
+        conexion.rollback_to("pedido_creado")
 
-               
-
-            cursor.execute("INSERT INTO Detallepedido VALUES ("+ Cproducto +", " +Cpedido +", "+ cantidad +")") 
-
+    conexion.commit()
+                   
 def mostrar_tablas(conexion):
     csr = conexion.cursor()
 
