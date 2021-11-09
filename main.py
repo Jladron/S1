@@ -102,6 +102,7 @@ def nuevo_pedido(conexion):
         conexion.rollback_to("antes_pedido")
     finally:
         conexion.set_savepoint("pedido_creado")
+        menu_dar_de_alta_pedido(conexion)
         cursor.close()
 
 def add_detalle(conexion, Cpedido):
@@ -116,7 +117,7 @@ def add_detalle(conexion, Cpedido):
     stock = int(cursor.execute("SELECT Cantidad FROM STOCK where STOCK.Cproducto = " + Cproducto))
     print("Stock disponible actualmente: " + str(stock))
 
-    cantidad = int(input("Introduzca la cantidad del producto: ")
+    cantidad = int(input("Introduzca la cantidad del producto: "))
 
     if (stock >= cantidad):
         restante = int(stock - cantidad)
@@ -160,8 +161,8 @@ def mostrar_tablas(conexion):
 
 #Menu para dar de alta un pedido (opcion 2 del menu inicial)
 def menu_dar_de_alta_pedido(conexion):
-    cursor = conexion.cursor
-    cursor.execution('SAVEPOINT detalles')
+    cursor = conexion.cursor()
+    cursor.execute('SAVEPOINT detalles')
                    
     salir_m2 = False
 
@@ -218,7 +219,7 @@ while not salir:
         reiniciar(cxn)
 
     elif opcion == 2:
-        menu_dar_de_alta_pedido(cxn)
+        nuevo_pedido(cxn)
 
     elif opcion == 3:
         mostrar_tablas(cxn)
