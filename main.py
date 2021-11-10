@@ -27,7 +27,7 @@ def reiniciar(conexion):
         cursor.execute('''
         DECLARE cnt NUMBER;
         BEGIN
-            SELECT COUNT(*) INTO cnt FROM user_tables WHERE table_name = 'SALES';
+            SELECT COUNT(*) INTO cnt FROM user_tables WHERE table_name = 'Detallepedido';
                 IF cnt <> 0 THEN
                     EXECUTE IMMEDIATE 'DROP TABLE Detallepedido';
                 END IF;
@@ -36,7 +36,7 @@ def reiniciar(conexion):
         cursor.execute('''
         DECLARE cnt NUMBER;
         BEGIN
-            SELECT COUNT(*) INTO cnt FROM user_tables WHERE table_name = 'SALES';
+            SELECT COUNT(*) INTO cnt FROM user_tables WHERE table_name = 'Pedido';
                 IF cnt <> 0 THEN
                     EXECUTE IMMEDIATE 'DROP TABLE Pedido';
                 END IF;
@@ -45,7 +45,7 @@ def reiniciar(conexion):
         cursor.execute('''
         DECLARE cnt NUMBER;
         BEGIN
-            SELECT COUNT(*) INTO cnt FROM user_tables WHERE table_name = 'SALES';
+            SELECT COUNT(*) INTO cnt FROM user_tables WHERE table_name = 'Stock';
                 IF cnt <> 0 THEN
                     EXECUTE IMMEDIATE 'DROP TABLE Stock';
                 END IF;
@@ -86,22 +86,25 @@ def nuevo_pedido(conexion):
 
     print("Se va a dar de alta un nuevo pedido.")
 
-    conexion.set_savepoint("antes_pedido")
+    conexion.execute("SAVEPOINT antes_pedido")
 
     # Variables correspondientes a las claves primarias
-    Cpedido = int(input("Introduzca el código de pedido: "))
-    Ccliente = int(input("Introduzca el código de cliente: "))
+    Cpedido = input("Introduzca el código de pedido: ")
+    Ccliente = input("Introduzca el código de cliente: ")
 
     try:
-        cursor.execute("INSERT INTO Pedido VALUES (" + Cpedido + ", " + Ccliente + ", SYSDATE)")
+        cursor.execute("INSERT INTO Pedido (CPEDIDO,CCLIENTE,FECHAPEDIDO) VALUES ("+Cpedido+", '"+Ccliente+"', SYSDATE)")
 
         print("Pedido creado correctamente.")
 
     except Exception as ex:
+        print("las claves son: "+Ccliente+" y "+Cpedido)
         print("Ha fallado el proceso alta del pedido.")
-        conexion.rollback_to("antes_pedido")
+        print(ex)
+        
+        conexion.execute("ROLLBACK TO SAVEPOINT antes_pedido")
     finally:
-        conexion.set_savepoint("pedido_creado")
+        conexion.execute("SAVEPOINT pedido_creado")
         menu_dar_de_alta_pedido(conexion)
         cursor.close()
 
@@ -122,7 +125,7 @@ def add_detalle(conexion, Cpedido):
     if (stock >= cantidad):
         restante = int(stock - cantidad)
         cursor.execute("UPDATE STOCK SET Cantidad = " + restante + "WHERE STOCK.Cproducto = " + Cproducto)
-        cursor.execute("INSERT INTO Detallepedido VALUES ("+Cproducto+", " +Cpedido+", "+cantidad+")")
+        cursor.execute("INSERT INTO Detallepedido VALUES ("+str(Cproducto)+", " +str(Cpedido)+", "+cantidad+")")
     
         conexion.set_savepoint("detalles_insertados")
     else:
@@ -148,7 +151,7 @@ def mostrar_tablas(conexion):
     print ("{:<10} {:<10} {:<10}".format('Cod. pedido.','Cod. cliente','Fecha-pedido'))
     for row in rows:
         codped, codcli, fecha = row
-        print ("{:<10} {:<10} {:<10}".format( codped, codcli,fecha))
+        print ("{:<10} {:<10} {:<10}".format( codped, codcli,str(fecha)))
 
     rows = csr.execute("SELECT Cproducto, Cpedido, Cantidad FROM Detallepedido").fetchall()
     print("Tabla Detalle-pedidos:")
@@ -183,12 +186,12 @@ def menu_dar_de_alta_pedido(conexion):
             cursor.execute('ROLLBACK TO detalles')
         elif opcion_m2 == 3:
             print("opcion 3")
-            cursor.execute('ROLLBACK')
+            cursor.execute('ROLLBACK to antes_pedido')
             salir_m2 = True
         elif opcion_m2 == 4:
             print("opion 4")
             cursor.execute('COMMIT')
-            opcion_m2 = True
+            salir_m2 = True
         else:
             print("Escribe una opcion correcta")
 
